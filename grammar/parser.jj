@@ -2,8 +2,9 @@ options {
 	STATIC = false ;
 }
 PARSER_BEGIN(Adder)
+    package com.jetbrains.drob.parser;
 	class Adder {
-	static void main( String[] args )
+	public static void main( String[] args )
 	throws ParseException, TokenMgrError {
 	Adder parser = new Adder( System.in ) ;
 	parser.Start() ; }
