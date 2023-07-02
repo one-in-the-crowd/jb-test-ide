@@ -23,6 +23,19 @@ TOKEN : { < DIV: "/" > }
 TOKEN : { < POW: "^" > }
 TOKEN : { < NUMBER : <DIGITS> | <DIGITS> "." <DIGITS> >}
 TOKEN : { < #DIGITS : (["0"-"9"])+ > }
+
+TOKEN : { < PRINT: "print" > }
+TOKEN: {
+    <QUOTED:
+        "\""
+        (
+             "\\" ~[]     //any escaped character
+        |
+            ~["\"","\\"]  //any character except quote or backslash
+        )*
+        "\"" >
+}
+
 TOKEN : { < EOL : ("\n" | "\r" | "\r\n")+ > }
 
 
@@ -30,12 +43,18 @@ TOKEN : { < EOL : ("\n" | "\r" | "\r\n")+ > }
 void Start(PrintStream printStream) :
 {
     double value;
+    String tmpString;
 }
 {
 	(
-	    value = Expression()
-	    <EOL>
-		{ printStream.println(value);}
+            value = Expression()
+            <EOL>
+            { printStream.println(value);}
+	    |
+	        <PRINT>
+	        tmpString = Quoted()
+	        <EOL>
+            { printStream.println(tmpString);}
 	)*
 	<EOF>
 }
@@ -71,11 +90,21 @@ double Expression() :
     {return number;}
 }
 
-
 double Number() throws NumberFormatException :
 {
     Token token;
 } {
     token = <NUMBER>
     {return Double.parseDouble(token.image);}
+}
+
+String Quoted() :
+{
+    Token token;
+} {
+    token = <QUOTED>
+    {
+        String tokenStr = token.image;
+        return tokenStr.substring(1, tokenStr.length()-1);
+    }
 }
