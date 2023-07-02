@@ -3,11 +3,12 @@ options {
 }
 PARSER_BEGIN(Adder)
 package com.jetbrains.drob.parser;
+import java.io.PrintStream;
+
 class Adder {
     public static void main( String[] args ) throws ParseException, TokenMgrError {
         Adder parser = new Adder( System.in ) ;
-        int result = parser.Start() ;
-        System.out.println("Result: "+result);
+        parser.Start(System.out) ;
     }
 }
 PARSER_END(Adder)
@@ -15,32 +16,66 @@ PARSER_END(Adder)
 
 
 SKIP : { " " }
-SKIP : { "\n" | "\r" | "\r\n" }
 TOKEN : { < PLUS : "+" > }
-TOKEN : { < NUMBER : (["0"-"9"])+ > }
+TOKEN : { < MINUS: "-" > }
+TOKEN : { < MULT: "*" > }
+TOKEN : { < DIV: "/" > }
+TOKEN : { < POW: "^" > }
+TOKEN : { < NUMBER : <DIGITS> | <DIGITS> "." <DIGITS> >}
+TOKEN : { < #DIGITS : (["0"-"9"])+ > }
+TOKEN : { < EOL : ("\n" | "\r" | "\r\n")+ > }
 
 
 
-int Start() :
+void Start(PrintStream printStream) :
 {
-    int tempNumber;
-    int number;
+    double value;
 }
 {
-	number = Number()
 	(
-		<PLUS>
-		tempNumber = Number()
-		{number += tempNumber;}
+	    value = Expression()
+	    <EOL>
+		{ printStream.println(value);}
 	)*
 	<EOF>
-	{return number;}
 }
 
-int Number() throws NumberFormatException :
+double Expression() :
+{
+    double tempNumber;
+    double number;
+}
+{
+    number = Number()
+    (
+            <PLUS>
+            tempNumber = Number()
+            {number += tempNumber;}
+        |
+            <MINUS>
+            tempNumber = Number()
+            {number -= tempNumber;}
+        |
+            <MULT>
+            tempNumber = Number()
+            {number *= tempNumber;}
+        |
+            <DIV>
+            tempNumber = Number()
+            {number /= tempNumber;}
+        |
+            <POW>
+            tempNumber = Number()
+            {number = Math.pow(number, tempNumber);}
+    )*
+    {return number;}
+}
+
+
+double Number() throws NumberFormatException :
 {
     Token token;
 } {
     token = <NUMBER>
-    {return Integer.parseInt(token.image);}
+    {return Double.parseDouble(token.image);}
 }
