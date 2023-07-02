@@ -23,20 +23,24 @@ TOKEN : { < NUMBER : (["0"-"9"])+ > }
 
 int Start() :
 {
-    Token token;
     int tempNumber;
     int number;
 }
 {
-	token = <NUMBER>
-	{tempNumber = Integer.parseInt(token.image);}
-	{number = tempNumber;}
+	number = Number()
 	(
 		<PLUS>
-		token = <NUMBER>
-		{tempNumber = Integer.parseInt(token.image);}
+		tempNumber = Number()
 		{number += tempNumber;}
 	)*
 	<EOF>
 	{return number;}
+}
+
+int Number() throws NumberFormatException :
+{
+    Token token;
+} {
+    token = <NUMBER>
+    {return Integer.parseInt(token.image);}
 }
