@@ -2,13 +2,14 @@ options {
 	STATIC = false ;
 }
 PARSER_BEGIN(Adder)
-    package com.jetbrains.drob.parser;
-	class Adder {
-	public static void main( String[] args )
-	throws ParseException, TokenMgrError {
-	Adder parser = new Adder( System.in ) ;
-	parser.Start() ; }
-	}
+package com.jetbrains.drob.parser;
+class Adder {
+    public static void main( String[] args ) throws ParseException, TokenMgrError {
+        Adder parser = new Adder( System.in ) ;
+        int result = parser.Start() ;
+        System.out.println("Result: "+result);
+    }
+}
 PARSER_END(Adder)
 
 
@@ -20,13 +21,22 @@ TOKEN : { < NUMBER : (["0"-"9"])+ > }
 
 
 
-void Start() :
-{}
+int Start() :
 {
-	<NUMBER>
+    Token token;
+    int tempNumber;
+    int number;
+}
+{
+	token = <NUMBER>
+	{tempNumber = Integer.parseInt(token.image);}
+	{number = tempNumber;}
 	(
 		<PLUS>
-		<NUMBER>
+		token = <NUMBER>
+		{tempNumber = Integer.parseInt(token.image);}
+		{number += tempNumber;}
 	)*
 	<EOF>
+	{return number;}
 }
