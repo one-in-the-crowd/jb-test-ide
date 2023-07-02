@@ -1,5 +1,6 @@
 plugins {
     application
+    kotlin("jvm") version "1.8.22"
 }
 
 repositories {
@@ -9,6 +10,14 @@ repositories {
 application {
     applicationName = "parser"
     mainClass.set("com.jetbrains.drob.parser.Parser")
+}
+
+dependencies {
+    testImplementation(kotlin("test"))
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 tasks.compileJava {
