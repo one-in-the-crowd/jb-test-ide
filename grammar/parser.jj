@@ -1,17 +1,17 @@
 options {
 	STATIC = false ;
 }
-PARSER_BEGIN(Adder)
+PARSER_BEGIN(Parser)
 package com.jetbrains.drob.parser;
 import java.io.PrintStream;
 
-class Adder {
+class Parser {
     public static void main( String[] args ) throws ParseException, TokenMgrError {
-        Adder parser = new Adder( System.in ) ;
+        Parser parser = new Parser( System.in ) ;
         parser.Start(System.out) ;
     }
 }
-PARSER_END(Adder)
+PARSER_END(Parser)
 
 
 

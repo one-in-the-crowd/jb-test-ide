@@ -8,7 +8,7 @@ repositories {
 
 application {
     applicationName = "parser"
-    mainClass.set("com.jetbrains.drob.parser.Adder")
+    mainClass.set("com.jetbrains.drob.parser.Parser")
 }
 
 tasks.compileJava {
@@ -18,7 +18,7 @@ tasks.compileJava {
 tasks.jar {
     archiveFileName.set("parser.jar")
     manifest {
-        attributes["Main-Class"] = "com.jetbrains.drob.parser.Adder"
+        attributes["Main-Class"] = "com.jetbrains.drob.parser.Parser"
     }
 }
 

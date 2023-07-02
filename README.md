@@ -11,5 +11,5 @@ Generates parser executable that is able to parse given input.
 3. Create a file with parser input;
 4. Execute parsing (e.g. `java -jar parser.jar < input.txt`).
 
-## Adder example
-Simple usage examples located at `app/examples`.
+## Examples
+Parser usage examples located at `app/examples`.
