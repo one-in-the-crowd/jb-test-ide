@@ -1,4 +1,4 @@
-val parserSourceCodeDir = "../app/src/main/java/com/jetbrains/drob/parser"
+val parserSourceCodeDir = "../app/src/main/java/com/github/oitc/parser"
 
 tasks.register("generateJava") {
     dependsOn("copyGrammar")
