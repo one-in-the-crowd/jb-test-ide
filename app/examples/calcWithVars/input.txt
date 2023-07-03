@@ -1,0 +1,7 @@
+var num1 = 11
+var num2 = 99
+out num1 + num2
+
+var num3 = 22
+var num4 = 11
+out num3 / num4

@@ -3,7 +3,10 @@ options {
 }
 PARSER_BEGIN(Parser)
 package com.github.oitc.parser;
+
 import java.io.PrintStream;
+import java.util.Map;
+import java.util.HashMap;
 
 class Parser {
     public static void main( String[] args ) throws ParseException, TokenMgrError {
@@ -21,8 +24,12 @@ TOKEN : { < MINUS: "-" > }
 TOKEN : { < MULT: "*" > }
 TOKEN : { < DIV: "/" > }
 TOKEN : { < POW: "^" > }
-TOKEN : { < NUMBER : <DIGITS> | <DIGITS> "." <DIGITS> >}
-TOKEN : { < #DIGITS : (["0"-"9"])+ > }
+TOKEN : { < NUMBER : (<DIGIT>)+ | (<DIGIT>)+ "." (<DIGIT>)+ >}
+TOKEN : { < #DIGIT : (["0"-"9"]) > }
+TOKEN : { < #LETER : (["a"-"z","A"-"Z"]) > }
+
+TOKEN : { < VAR: "var" > }
+TOKEN : { < EQ: "=" > }
 
 TOKEN : { < PRINT: "print" > }
 TOKEN: {
@@ -36,6 +43,7 @@ TOKEN: {
         "\"" >
 }
 TOKEN : { < OUT: "out" > }
+TOKEN : { < NAME: <LETER> (<LETER> | <DIGIT>)* > }
 
 TOKEN : { < EOL : ("\n" | "\r" | "\r\n")+ > }
 
@@ -44,54 +52,82 @@ TOKEN : { < EOL : ("\n" | "\r" | "\r\n")+ > }
 void Start(PrintStream printStream) :
 {
     double value;
-    String tmpString;
+    Map<String, Double> vars = new HashMap<>();
 }
 {
 	(
-            value = Expression()
+            value = Expression(vars)
             <EOL>
         |
             <OUT>
-            value = Expression()
+            value = Expression(vars)
             <EOL>
             { printStream.println(value);}
 	    |
 	        <PRINT>
-	        tmpString = Quoted()
+	        {String quoted;}
+	        quoted = Quoted()
 	        <EOL>
-            { printStream.println(tmpString);}
+            { printStream.println(quoted);}
+        |
+            <VAR>
+            token = <NAME>
+            {
+                String varName = token.image;
+                vars.put(varName, null);
+            }
+            <EQ>
+            value = Expression(vars)
+            {vars.put(varName, value);}
+            <EOL>
 	)*
 	<EOF>
 }
 
-double Expression() :
+double Expression(Map<String, Double> vars) :
 {
+    Token token;
     double tempNumber;
     double number;
 }
 {
-    number = Number()
+    number = Value(vars)
     (
             <PLUS>
-            tempNumber = Number()
+            tempNumber = Value(vars)
             {number += tempNumber;}
         |
             <MINUS>
-            tempNumber = Number()
+            tempNumber = Value(vars)
             {number -= tempNumber;}
         |
             <MULT>
-            tempNumber = Number()
+            tempNumber = Value(vars)
             {number *= tempNumber;}
         |
             <DIV>
-            tempNumber = Number()
+            tempNumber = Value(vars)
             {number /= tempNumber;}
         |
             <POW>
-            tempNumber = Number()
+            tempNumber = Value(vars)
             {number = Math.pow(number, tempNumber);}
     )*
+    {return number;}
+}
+
+double Value(Map<String, Double> vars) throws NumberFormatException :
+{
+    Token token;
+    double number;
+} {
+    (
+            number = Number()
+        |
+            token = <NAME>
+            {number = vars.get(token.image);}
+
+    )
     {return number;}
 }
 

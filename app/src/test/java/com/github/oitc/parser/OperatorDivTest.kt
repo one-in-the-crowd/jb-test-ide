@@ -28,7 +28,7 @@ internal class OperatorDivTest {
     }
 
     @Test
-    fun `when first arg non num - then token mgr error`() {
+    fun `when first arg non num - then error`() {
         // Given
         val input = "out qwe / 11"
             .withEndLine()
@@ -39,13 +39,13 @@ internal class OperatorDivTest {
         val byteOutStream = ByteArrayOutputStream()
         val outStream = PrintStream(byteOutStream)
 
-        assertThrows<TokenMgrError> {
+        assertThrows<NullPointerException> {
             parser.Start(outStream)
         }
     }
 
     @Test
-    fun `when second arg non num - then token mgr error`() {
+    fun `when second arg non num - then error`() {
         // Given
         val input = "out 12 / q"
             .withEndLine()
@@ -56,7 +56,7 @@ internal class OperatorDivTest {
         val byteOutStream = ByteArrayOutputStream()
         val outStream = PrintStream(byteOutStream)
 
-        assertThrows<TokenMgrError> {
+        assertThrows<NullPointerException> {
             parser.Start(outStream)
         }
     }
