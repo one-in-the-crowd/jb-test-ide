@@ -35,6 +35,7 @@ TOKEN: {
         )*
         "\"" >
 }
+TOKEN : { < OUT: "out" > }
 
 TOKEN : { < EOL : ("\n" | "\r" | "\r\n")+ > }
 
@@ -47,6 +48,10 @@ void Start(PrintStream printStream) :
 }
 {
 	(
+            value = Expression()
+            <EOL>
+        |
+            <OUT>
             value = Expression()
             <EOL>
             { printStream.println(value);}
