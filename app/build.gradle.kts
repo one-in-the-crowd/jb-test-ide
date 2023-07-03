@@ -9,7 +9,7 @@ repositories {
 
 application {
     applicationName = "parser"
-    mainClass.set("com.jetbrains.drob.parser.Parser")
+    mainClass.set("com.github.oitc.parser.Parser")
 }
 
 dependencies {
@@ -27,7 +27,7 @@ tasks.compileJava {
 tasks.jar {
     archiveFileName.set("parser.jar")
     manifest {
-        attributes["Main-Class"] = "com.jetbrains.drob.parser.Parser"
+        attributes["Main-Class"] = "com.github.oitc.parser.Parser"
     }
 }
 

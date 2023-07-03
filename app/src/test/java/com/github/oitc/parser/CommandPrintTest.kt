@@ -1,18 +1,18 @@
-package com.jetbrains.drob.parser
+package com.github.oitc.parser
 
-import com.jetbrains.drob.parser.ext.withEndLine
+import com.github.oitc.parser.ext.withEndLine
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import kotlin.test.assertEquals
 
-internal class OperatorDivTest {
+internal class CommandPrintTest {
 
     @Test
-    fun `when correct arguments - then calculate result`() {
+    fun `when argument correct - then print argument`() {
         // Given
-        val input = "4.4 / 2.2"
+        val input = "print \"foo bar\""
             .withEndLine()
             .byteInputStream()
 
@@ -24,13 +24,31 @@ internal class OperatorDivTest {
 
         // Then
         val outputStr = byteOutStream.toString()
-        assertEquals("2.0".withEndLine(), outputStr)
+        assertEquals("foo bar".withEndLine(), outputStr)
     }
 
     @Test
-    fun `when first arg non num - then token mgr error`() {
+    fun `when argument is empty string - then print argument`() {
         // Given
-        val input = "qwe / 11"
+        val input = "print \"\""
+            .withEndLine()
+            .byteInputStream()
+
+        // When
+        val parser = Parser(input)
+        val byteOutStream = ByteArrayOutputStream()
+        val outStream = PrintStream(byteOutStream)
+        parser.Start(outStream)
+
+        // Then
+        val outputStr = byteOutStream.toString()
+        assertEquals("".withEndLine(), outputStr)
+    }
+
+    @Test
+    fun `when arg is not string - then token mgr error`() {
+        // Given
+        val input = "print qwe123"
             .withEndLine()
             .byteInputStream()
 
@@ -43,45 +61,10 @@ internal class OperatorDivTest {
             parser.Start(outStream)
         }
     }
-
     @Test
-    fun `when second arg non num - then token mgr error`() {
+    fun `when arg absent - then parse exception`() {
         // Given
-        val input = "12 / q"
-            .withEndLine()
-            .byteInputStream()
-
-        // When
-        val parser = Parser(input)
-        val byteOutStream = ByteArrayOutputStream()
-        val outStream = PrintStream(byteOutStream)
-
-        assertThrows<TokenMgrError> {
-            parser.Start(outStream)
-        }
-    }
-
-    @Test
-    fun `when first arg absent - then parse exception`() {
-        // Given
-        val input = " / 12"
-            .withEndLine()
-            .byteInputStream()
-
-        // When
-        val parser = Parser(input)
-        val byteOutStream = ByteArrayOutputStream()
-        val outStream = PrintStream(byteOutStream)
-
-        assertThrows<ParseException> {
-            parser.Start(outStream)
-        }
-    }
-
-    @Test
-    fun `when second arg absent - then parse exception`() {
-        // Given
-        val input = "12 / "
+        val input = "print"
             .withEndLine()
             .byteInputStream()
 

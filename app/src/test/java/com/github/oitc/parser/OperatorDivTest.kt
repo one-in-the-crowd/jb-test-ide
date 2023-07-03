@@ -1,18 +1,18 @@
-package com.jetbrains.drob.parser
+package com.github.oitc.parser
 
-import com.jetbrains.drob.parser.ext.withEndLine
+import com.github.oitc.parser.ext.withEndLine
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import kotlin.test.assertEquals
 
-internal class OperatorPlusTest {
+internal class OperatorDivTest {
 
     @Test
     fun `when correct arguments - then calculate result`() {
         // Given
-        val input = "22 + 11"
+        val input = "4.4 / 2.2"
             .withEndLine()
             .byteInputStream()
 
@@ -24,13 +24,13 @@ internal class OperatorPlusTest {
 
         // Then
         val outputStr = byteOutStream.toString()
-        assertEquals("33.0".withEndLine(), outputStr)
+        assertEquals("2.0".withEndLine(), outputStr)
     }
 
     @Test
     fun `when first arg non num - then token mgr error`() {
         // Given
-        val input = "qwe + 11"
+        val input = "qwe / 11"
             .withEndLine()
             .byteInputStream()
 
@@ -47,7 +47,7 @@ internal class OperatorPlusTest {
     @Test
     fun `when second arg non num - then token mgr error`() {
         // Given
-        val input = "12 + q"
+        val input = "12 / q"
             .withEndLine()
             .byteInputStream()
 
@@ -64,7 +64,7 @@ internal class OperatorPlusTest {
     @Test
     fun `when first arg absent - then parse exception`() {
         // Given
-        val input = " + 12"
+        val input = " / 12"
             .withEndLine()
             .byteInputStream()
 
@@ -81,7 +81,7 @@ internal class OperatorPlusTest {
     @Test
     fun `when second arg absent - then parse exception`() {
         // Given
-        val input = "12 + "
+        val input = "12 / "
             .withEndLine()
             .byteInputStream()
 
