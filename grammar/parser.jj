@@ -4,7 +4,12 @@ options {
 PARSER_BEGIN(Parser)
 package com.github.oitc.parser;
 
+import com.github.oitc.parser.data.ExpressionValue;
+import com.github.oitc.parser.data.ExpressionValue.*;
+
 import java.io.PrintStream;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -14,6 +19,7 @@ class Parser {
         parser.Start(System.out) ;
     }
 }
+
 PARSER_END(Parser)
 
 
@@ -24,7 +30,8 @@ TOKEN : { < MINUS: "-" > }
 TOKEN : { < MULT: "*" > }
 TOKEN : { < DIV: "/" > }
 TOKEN : { < POW: "^" > }
-TOKEN : { < NUMBER : (<DIGIT>)+ | (<DIGIT>)+ "." (<DIGIT>)+ >}
+TOKEN : { < NUMBER_INT : (<DIGIT>)+ > }
+TOKEN : { < NUMBER_ANY : (<DIGIT>)+ "." (<DIGIT>)+ >}
 TOKEN : { < #DIGIT : (["0"-"9"]) > }
 TOKEN : { < #LETER : (["a"-"z","A"-"Z"]) > }
 
@@ -51,8 +58,8 @@ TOKEN : { < EOL : ("\n" | "\r" | "\r\n")+ > }
 
 void Start(PrintStream printStream) :
 {
-    double value;
-    Map<String, Double> vars = new HashMap<>();
+    ExpressionValue value;
+    Map<String, ExpressionValue> vars = new HashMap<>();
 }
 {
 	(
@@ -62,7 +69,7 @@ void Start(PrintStream printStream) :
             <OUT>
             value = Expression(vars)
             <EOL>
-            { printStream.println(value);}
+            { printStream.println(value.getValue());}
 	    |
 	        <PRINT>
 	        {String quoted;}
@@ -84,59 +91,116 @@ void Start(PrintStream printStream) :
 	<EOF>
 }
 
-double Expression(Map<String, Double> vars) :
+List<Integer> Sequence() throws IllegalArgumentException :
 {
-    Token token;
-    double tempNumber;
-    double number;
+    ExValInt leftBound;
+    ExValInt rightBound;
 }
 {
-    number = Value(vars)
+    (
+        "{"
+        leftBound = NumberInt()
+        ","
+        rightBound = NumberInt()
+        "}"
+        {
+            if (rightBound.getValue()<leftBound.getValue()) {
+                throw new IllegalArgumentException("Sequence right arg less than left.");
+            }
+            int size = rightBound.getValue() - leftBound.getValue();
+            List<Integer> list = new ArrayList(size);
+            for(int i=0; i <= size; i++) {
+                list.add(leftBound.getValue() + i);
+            }
+            return list;
+        }
+    )+
+}
+
+ExpressionValue Expression(Map<String, ExpressionValue> vars) :
+{
+    ExpressionValue tempValue;
+    ExpressionValue value;
+}
+{
+    value = ExpressionValue(vars)
     (
             <PLUS>
-            tempNumber = Value(vars)
-            {number += tempNumber;}
+            tempValue = ExpressionValue(vars)
+            {value = value.plus(tempValue);}
         |
             <MINUS>
-            tempNumber = Value(vars)
-            {number -= tempNumber;}
+            tempValue = ExpressionValue(vars)
+            {value = value.minus(tempValue);}
         |
             <MULT>
-            tempNumber = Value(vars)
-            {number *= tempNumber;}
+            tempValue = ExpressionValue(vars)
+            {value = value.times(tempValue);}
         |
             <DIV>
-            tempNumber = Value(vars)
-            {number /= tempNumber;}
+            tempValue = ExpressionValue(vars)
+            {value = value.div(tempValue);}
         |
-            <POW>
-            tempNumber = Value(vars)
-            {number = Math.pow(number, tempNumber);}
+            value = Power(vars, value)
     )*
-    {return number;}
+    {return value;}
 }
 
-double Value(Map<String, Double> vars) throws NumberFormatException :
+ExpressionValue Power(
+    Map<String, ExpressionValue> vars,
+    ExpressionValue value
+) :
 {
     Token token;
-    double number;
+    ExpressionValue tempValue;
+}
+{
+    <POW>
+    tempValue = ExpressionValue(vars)
+    {
+        Double result = Math.pow(
+            ExtKt.getDoubleValue(value),
+            ExtKt.getDoubleValue(tempValue)
+        );
+        return new ExValDouble(result);
+    }
+}
+
+ExpressionValue ExpressionValue(Map<String, ExpressionValue> vars) throws NumberFormatException :
+{
+    Token token;
+    ExpressionValue value;
 } {
     (
-            number = Number()
+            value = Number()
+        |
+            value = NumberInt()
         |
             token = <NAME>
-            {number = vars.get(token.image);}
+            {value = vars.get(token.image);}
+        |
+            {List<Integer> sequenceList;}
+            sequenceList = Sequence()
+            {value = new ExValSequence(sequenceList);}
 
     )
-    {return number;}
+    {return value;}
 }
 
-double Number() throws NumberFormatException :
+ExValDouble Number() throws NumberFormatException :
 {
     Token token;
 } {
-    token = <NUMBER>
-    {return Double.parseDouble(token.image);}
+    token = <NUMBER_ANY>
+    {return new ExValDouble(Double.parseDouble(token.image));}
+}
+
+ExValInt NumberInt() throws NumberFormatException :
+{
+    Token token;
+} {
+    token = <NUMBER_INT>
+    {return new ExValInt(Integer.parseInt(token.image));}
 }
 
 String Quoted() :

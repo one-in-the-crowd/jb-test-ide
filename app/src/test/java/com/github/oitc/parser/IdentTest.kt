@@ -29,7 +29,7 @@ internal class IdentTest {
 
         // Then
         val outputStr = byteOutStream.toString()
-        assertEquals("33.0".withEndLine(), outputStr)
+        assertEquals("33".withEndLine(), outputStr)
     }
 
     @Test
@@ -51,7 +51,7 @@ internal class IdentTest {
 
         // Then
         val outputStr = byteOutStream.toString()
-        assertEquals("11.0".withEndLine(), outputStr)
+        assertEquals("11".withEndLine(), outputStr)
     }
 
     @Test

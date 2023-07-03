@@ -13,6 +13,8 @@ application {
 }
 
 dependencies {
+    implementation(project(":data"))
+
     testImplementation(kotlin("test"))
 }
 
@@ -29,6 +31,14 @@ tasks.jar {
     manifest {
         attributes["Main-Class"] = "com.github.oitc.parser.Parser"
     }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // Add data module classes
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
 }
 
 tasks.named<Test>("test") {

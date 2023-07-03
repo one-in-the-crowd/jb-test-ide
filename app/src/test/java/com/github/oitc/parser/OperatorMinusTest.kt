@@ -24,7 +24,7 @@ internal class OperatorMinusTest {
 
         // Then
         val outputStr = byteOutStream.toString()
-        assertEquals("22.0".withEndLine(), outputStr)
+        assertEquals("22".withEndLine(), outputStr)
     }
 
     @Test
