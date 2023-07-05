@@ -11,5 +11,13 @@ fun getDoubleValue(input: ExpressionValue<*>): Double = when (input) {
         input.value
 
     else ->
-        throw IllegalArgumentException("Unable to convert to double")
+        throw IllegalArgumentException("Unable to get double value")
+}
+
+fun getIntValue(input: ExpressionValue<*>): Int = when (input) {
+    is ExpressionValue.ExValInt ->
+        input.value
+
+    else ->
+        throw IllegalArgumentException("Unable to get int value")
 }

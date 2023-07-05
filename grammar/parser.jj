@@ -6,16 +6,24 @@ package com.github.oitc.parser;
 
 import com.github.oitc.parser.data.ExpressionValue;
 import com.github.oitc.parser.data.ExpressionValue.*;
+import com.github.oitc.parser.data.ParserPosition;
 
+import java.beans.Expression;
 import java.io.PrintStream;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
+import java.io.StringReader;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.util.*;
+import java.util.function.Function;
+import static com.github.oitc.parser.ExtKt.getIntValue;
 
 class Parser {
-    public static void main( String[] args ) throws ParseException, TokenMgrError {
-        Parser parser = new Parser( System.in ) ;
+    public static void main( String[] args ) throws ParseException, TokenMgrError, IOException {
+        Reader reader = ReaderMaker.INSTANCE.invoke(System.in);
+        Parser parser = new Parser( reader ) ;
         parser.Start(System.out) ;
     }
 }
@@ -38,6 +46,8 @@ TOKEN : { < #LETER : (["a"-"z","A"-"Z"]) > }
 TOKEN : { < VAR: "var" > }
 TOKEN : { < EQ: "=" > }
 
+TOKEN : { < MAP: "map"> }
+
 TOKEN : { < PRINT: "print" > }
 TOKEN: {
     <QUOTED:
@@ -53,7 +63,6 @@ TOKEN : { < OUT: "out" > }
 TOKEN : { < NAME: <LETER> (<LETER> | <DIGIT>)* > }
 
 TOKEN : { < EOL : ("\n" | "\r" | "\r\n")+ > }
-
 
 
 void Start(PrintStream printStream) :
@@ -91,30 +100,126 @@ void Start(PrintStream printStream) :
 	<EOF>
 }
 
+ExValSequence Map(Map<String, ExpressionValue> vars):
+{
+    Token token;
+    List<Integer> sequenceList;
+    String mapArgName;
+    ExValSequence mapValue;
+}
+{
+    <MAP>
+    "("
+        sequenceList = Sequence()
+        ","
+        token= <NAME>
+        {mapArgName = token.image;}
+
+        token = "->"
+
+        mapValue = mapInternal(sequenceList, mapArgName)
+    ")"
+    {return mapValue;}
+}
+
+JAVACODE
+ExValSequence mapInternal(List<Integer> sequence, String mapArgName) {
+    List<Integer> resultSequence = new LinkedList<Integer>();
+
+    ParserPosition mapExpressionPosition = saveParserPosition();
+    ParserPosition endMapExpressionPosition = null;
+
+    Map<String, ExpressionValue> mapIterationArgs = new HashMap();
+    Iterator<Integer> iterator = sequence.iterator();
+    while(iterator.hasNext()) {
+        if (!iterator.hasNext()) break;
+
+        rewindParser(mapExpressionPosition);
+
+        ParserPosition posAfterRewind = saveParserPosition();
+
+        Integer sequenceArgument = iterator.next();
+        mapIterationArgs.put(mapArgName, new ExValInt(sequenceArgument));
+
+
+        ExpressionValue exValue = Expression(mapIterationArgs);
+        resultSequence.add(getIntValue(exValue));
+    }
+
+    return new ExValSequence(resultSequence);
+}
+
+JAVACODE
+ParserPosition saveParserPosition() {
+    return new ParserPosition(
+        jj_input_stream.bufpos,
+        jj_input_stream.line,
+        jj_input_stream.column
+        );
+}
+
+JAVACODE
+void setParserStream(SimpleCharStream stream) {
+    try {
+          Reader streamReader = stream.inputStream;
+          streamReader.reset();
+          streamReader.skip(stream.bufpos + 1);
+
+          ParserTokenManager tokenManager = new ParserTokenManager(stream);
+            ReInit(tokenManager);
+            jj_input_stream.ReInit(
+                    streamReader,
+                    stream.line,
+                    stream.column + 1 // because SimpleCharStream has -1 at REinit
+                );
+
+        } catch (IOException ex) {
+          System.out.println("Parser rewind failed. Ex: "+ex);
+        }
+}
+
+JAVACODE
+void rewindParser(ParserPosition position) {
+try {
+      Reader streamReader = jj_input_stream.inputStream;
+      streamReader.reset();
+      streamReader.skip(position.getBufPos() + 1);
+
+        ReInit(streamReader);
+        jj_input_stream.ReInit(
+                streamReader,
+                position.getLine(),
+                position.getColumn() + 1 // because SimpleCharStream has -1 at REinit
+            );
+
+//        jj_input_stream.bufpos=position.getBufPos(); // BREAKS ALL
+    } catch (IOException ex) {
+      System.out.println("Parser rewind failed. Ex: "+ex);
+    }
+}
+
 List<Integer> Sequence() throws IllegalArgumentException :
 {
     ExValInt leftBound;
     ExValInt rightBound;
+    List<Integer> seqBounds = new ArrayList<>();
 }
 {
-    (
-        "{"
-        leftBound = NumberInt()
-        ","
-        rightBound = NumberInt()
-        "}"
-        {
-            if (rightBound.getValue()<leftBound.getValue()) {
-                throw new IllegalArgumentException("Sequence right arg less than left.");
-            }
-            int size = rightBound.getValue() - leftBound.getValue();
-            List<Integer> list = new ArrayList(size);
-            for(int i=0; i <= size; i++) {
-                list.add(leftBound.getValue() + i);
-            }
-            return list;
+    "{"
+    leftBound = NumberInt()
+    ","
+    rightBound = NumberInt()
+    "}"
+    {
+        if (rightBound.getValue()<leftBound.getValue()) {
+            throw new IllegalArgumentException("Sequence right arg less than left.");
         }
-    )+
+        int size = rightBound.getValue() - leftBound.getValue();
+        for(int i=0; i <= size; i++) {
+            seqBounds.add(leftBound.getValue() + i);
+        }
+        return seqBounds;
+    }
 }
 
 ExpressionValue Expression(Map<String, ExpressionValue> vars) :
@@ -182,6 +287,8 @@ ExpressionValue ExpressionValue(Map<String, ExpressionValue> vars) throws Number
             {List<Integer> sequenceList;}
             sequenceList = Sequence()
             {value = new ExValSequence(sequenceList);}
+        |
+            value = Map(vars)
 
     )
     {return value;}
