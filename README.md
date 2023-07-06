@@ -1,11 +1,12 @@
 # Parser generation project
 Generates parser executable that is able to parse given input.
 
-## Points of interest
--  `grammar/parser.jj` contains javaCC grammar specification; 
--  `parser.jar` is a parser executable created by `app`.
+## Modules
+- `grammar` - contains original grammar for parser generation;
+- `app` - module generates parser based on grammar from `grammar`;
+- `ui` - contains user interface that allows to interact with parser.
 
-## Execution example
+## Parser execution example
 1. Build the project with `.gradlew build`;
 2. Navigate to `app/build/libs`;
 3. Create a file with parser input;
