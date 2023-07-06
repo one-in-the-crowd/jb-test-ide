@@ -1,19 +1,18 @@
-package com.github.oitc.parser
+package com.github.oitc.parser.generated
 
-import com.github.oitc.parser.ext.withEndLine
+import com.github.oitc.parser.generated.ext.withEndLine
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
-import java.lang.IllegalArgumentException
 import kotlin.test.assertEquals
 
-class SequenceTest {
+internal class OperatorMinusTest {
 
     @Test
-    fun `when out correct sequence - then print it`() {
+    fun `when correct arguments - then calculate result`() {
         // Given
-        val input = "out {0, 5}"
+        val input = "out 33 - 11"
             .withEndLine()
             .byteInputStream()
 
@@ -25,13 +24,13 @@ class SequenceTest {
 
         // Then
         val outputStr = byteOutStream.toString()
-        assertEquals("[0, 1, 2, 3, 4, 5]".withEndLine(), outputStr)
+        assertEquals("22".withEndLine(), outputStr)
     }
 
     @Test
-    fun `when out sequence with a single item - then print it`() {
+    fun `when first arg non num - then error`() {
         // Given
-        val input = "out {7, 7}"
+        val input = "out qwe - 11"
             .withEndLine()
             .byteInputStream()
 
@@ -39,17 +38,16 @@ class SequenceTest {
         val parser = Parser(input)
         val byteOutStream = ByteArrayOutputStream()
         val outStream = PrintStream(byteOutStream)
-        parser.Start(outStream)
 
-        // Then
-        val outputStr = byteOutStream.toString()
-        assertEquals("[7]".withEndLine(), outputStr)
+        assertThrows<NullPointerException> {
+            parser.Start(outStream)
+        }
     }
 
     @Test
-    fun `when out sequence sum - then print it`() {
+    fun `when second arg non num - then error`() {
         // Given
-        val input = "out {0, 1} + {8, 9}"
+        val input = "out 12 - q"
             .withEndLine()
             .byteInputStream()
 
@@ -57,17 +55,16 @@ class SequenceTest {
         val parser = Parser(input)
         val byteOutStream = ByteArrayOutputStream()
         val outStream = PrintStream(byteOutStream)
-        parser.Start(outStream)
 
-        // Then
-        val outputStr = byteOutStream.toString()
-        assertEquals("[0, 1, 8, 9]".withEndLine(), outputStr)
+        assertThrows<NullPointerException> {
+            parser.Start(outStream)
+        }
     }
 
     @Test
-    fun `when out sequence left more than right - then error`() {
+    fun `when first arg absent - then parse exception`() {
         // Given
-        val input = "out {9, 2}"
+        val input = "out - 12"
             .withEndLine()
             .byteInputStream()
 
@@ -75,7 +72,26 @@ class SequenceTest {
         val parser = Parser(input)
         val byteOutStream = ByteArrayOutputStream()
         val outStream = PrintStream(byteOutStream)
-        assertThrows<IllegalArgumentException>{ parser.Start(outStream) }
 
+        assertThrows<ParseException> {
+            parser.Start(outStream)
+        }
+    }
+
+    @Test
+    fun `when second arg absent - then parse exception`() {
+        // Given
+        val input = "out 12 - "
+            .withEndLine()
+            .byteInputStream()
+
+        // When
+        val parser = Parser(input)
+        val byteOutStream = ByteArrayOutputStream()
+        val outStream = PrintStream(byteOutStream)
+
+        assertThrows<ParseException> {
+            parser.Start(outStream)
+        }
     }
 }

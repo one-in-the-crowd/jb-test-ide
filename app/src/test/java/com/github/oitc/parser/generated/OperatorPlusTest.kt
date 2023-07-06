@@ -1,18 +1,18 @@
-package com.github.oitc.parser
+package com.github.oitc.parser.generated
 
-import com.github.oitc.parser.ext.withEndLine
+import com.github.oitc.parser.generated.ext.withEndLine
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import kotlin.test.assertEquals
 
-internal class CommandPrintTest {
+internal class OperatorPlusTest {
 
     @Test
-    fun `when argument correct - then print argument`() {
+    fun `when correct arguments - then calculate result`() {
         // Given
-        val input = "print \"foo bar\""
+        val input = "out 22 + 11"
             .withEndLine()
             .byteInputStream()
 
@@ -24,13 +24,13 @@ internal class CommandPrintTest {
 
         // Then
         val outputStr = byteOutStream.toString()
-        assertEquals("foo bar".withEndLine(), outputStr)
+        assertEquals("33".withEndLine(), outputStr)
     }
 
     @Test
-    fun `when argument is empty string - then print argument`() {
+    fun `when first arg non num - then error`() {
         // Given
-        val input = "print \"\""
+        val input = "out qwe + 11"
             .withEndLine()
             .byteInputStream()
 
@@ -38,17 +38,33 @@ internal class CommandPrintTest {
         val parser = Parser(input)
         val byteOutStream = ByteArrayOutputStream()
         val outStream = PrintStream(byteOutStream)
-        parser.Start(outStream)
 
-        // Then
-        val outputStr = byteOutStream.toString()
-        assertEquals("".withEndLine(), outputStr)
+        assertThrows<NullPointerException> {
+            parser.Start(outStream)
+        }
     }
 
     @Test
-    fun `when arg is not string - then token mgr error`() {
+    fun `when second arg non num - then error`() {
         // Given
-        val input = "print qwe123"
+        val input = "out 12 + q"
+            .withEndLine()
+            .byteInputStream()
+
+        // When
+        val parser = Parser(input)
+        val byteOutStream = ByteArrayOutputStream()
+        val outStream = PrintStream(byteOutStream)
+
+        assertThrows<NullPointerException> {
+            parser.Start(outStream)
+        }
+    }
+
+    @Test
+    fun `when first arg absent - then parse exception`() {
+        // Given
+        val input = "out + 12"
             .withEndLine()
             .byteInputStream()
 
@@ -61,10 +77,11 @@ internal class CommandPrintTest {
             parser.Start(outStream)
         }
     }
+
     @Test
-    fun `when arg absent - then parse exception`() {
+    fun `when second arg absent - then parse exception`() {
         // Given
-        val input = "print"
+        val input = "out 12 + "
             .withEndLine()
             .byteInputStream()
 

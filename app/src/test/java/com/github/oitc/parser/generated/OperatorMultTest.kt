@@ -1,19 +1,18 @@
-package com.github.oitc.parser
+package com.github.oitc.parser.generated
 
-import com.github.oitc.parser.ext.withEndLine
+import com.github.oitc.parser.generated.ext.withEndLine
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
-import java.lang.ClassCastException
 import kotlin.test.assertEquals
 
-internal class OperatorPowTest {
+internal class OperatorMultTest {
 
     @Test
     fun `when correct arguments - then calculate result`() {
         // Given
-        val input = "out 2 ^ 3"
+        val input = "out 2.2 * 4.5"
             .withEndLine()
             .byteInputStream()
 
@@ -25,13 +24,13 @@ internal class OperatorPowTest {
 
         // Then
         val outputStr = byteOutStream.toString()
-        assertEquals("8.0".withEndLine(), outputStr)
+        assertEquals("9.9".withEndLine(), outputStr)
     }
 
     @Test
     fun `when first arg non num - then error`() {
         // Given
-        val input = "out qwe ^ 11"
+        val input = "out qwe * 11"
             .withEndLine()
             .byteInputStream()
 
@@ -48,7 +47,7 @@ internal class OperatorPowTest {
     @Test
     fun `when second arg non num - then error`() {
         // Given
-        val input = "out 12 ^ q"
+        val input = "out 12 * q"
             .withEndLine()
             .byteInputStream()
 
@@ -65,7 +64,7 @@ internal class OperatorPowTest {
     @Test
     fun `when first arg absent - then parse exception`() {
         // Given
-        val input = "out ^ 12"
+        val input = "out  * 12"
             .withEndLine()
             .byteInputStream()
 
@@ -82,7 +81,7 @@ internal class OperatorPowTest {
     @Test
     fun `when second arg absent - then parse exception`() {
         // Given
-        val input = "out 12 ^ "
+        val input = "out 12 * "
             .withEndLine()
             .byteInputStream()
 

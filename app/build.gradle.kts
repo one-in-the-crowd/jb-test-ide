@@ -1,3 +1,5 @@
+val packageName = providers.gradleProperty("parser.generated.package").get()
+
 plugins {
     application
     kotlin("jvm")
@@ -5,7 +7,7 @@ plugins {
 
 application {
     applicationName = "parser"
-    mainClass.set("com.github.oitc.parser.Parser")
+    mainClass.set(packageName+".Parser")
 }
 
 dependencies {
@@ -25,7 +27,7 @@ tasks.compileJava {
 tasks.jar {
     archiveFileName.set("parser.jar")
     manifest {
-        attributes["Main-Class"] = "com.github.oitc.parser.Parser"
+        attributes["Main-Class"] = packageName+".Parser"
     }
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE

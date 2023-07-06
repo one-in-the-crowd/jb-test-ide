@@ -1,6 +1,6 @@
-package com.github.oitc.parser
+package com.github.oitc.parser.generated
 
-import com.github.oitc.parser.ext.withEndLine
+import com.github.oitc.parser.generated.ext.withEndLine
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.ByteArrayOutputStream

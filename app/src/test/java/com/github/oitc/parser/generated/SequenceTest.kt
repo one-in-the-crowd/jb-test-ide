@@ -1,18 +1,19 @@
-package com.github.oitc.parser
+package com.github.oitc.parser.generated
 
-import com.github.oitc.parser.ext.withEndLine
+import com.github.oitc.parser.generated.ext.withEndLine
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
+import java.lang.IllegalArgumentException
 import kotlin.test.assertEquals
 
-internal class OperatorMultTest {
+class SequenceTest {
 
     @Test
-    fun `when correct arguments - then calculate result`() {
+    fun `when out correct sequence - then print it`() {
         // Given
-        val input = "out 2.2 * 4.5"
+        val input = "out {0, 5}"
             .withEndLine()
             .byteInputStream()
 
@@ -24,13 +25,13 @@ internal class OperatorMultTest {
 
         // Then
         val outputStr = byteOutStream.toString()
-        assertEquals("9.9".withEndLine(), outputStr)
+        assertEquals("[0, 1, 2, 3, 4, 5]".withEndLine(), outputStr)
     }
 
     @Test
-    fun `when first arg non num - then error`() {
+    fun `when out sequence with a single item - then print it`() {
         // Given
-        val input = "out qwe * 11"
+        val input = "out {7, 7}"
             .withEndLine()
             .byteInputStream()
 
@@ -38,16 +39,17 @@ internal class OperatorMultTest {
         val parser = Parser(input)
         val byteOutStream = ByteArrayOutputStream()
         val outStream = PrintStream(byteOutStream)
+        parser.Start(outStream)
 
-        assertThrows<NullPointerException> {
-            parser.Start(outStream)
-        }
+        // Then
+        val outputStr = byteOutStream.toString()
+        assertEquals("[7]".withEndLine(), outputStr)
     }
 
     @Test
-    fun `when second arg non num - then error`() {
+    fun `when out sequence sum - then print it`() {
         // Given
-        val input = "out 12 * q"
+        val input = "out {0, 1} + {8, 9}"
             .withEndLine()
             .byteInputStream()
 
@@ -55,16 +57,17 @@ internal class OperatorMultTest {
         val parser = Parser(input)
         val byteOutStream = ByteArrayOutputStream()
         val outStream = PrintStream(byteOutStream)
+        parser.Start(outStream)
 
-        assertThrows<NullPointerException> {
-            parser.Start(outStream)
-        }
+        // Then
+        val outputStr = byteOutStream.toString()
+        assertEquals("[0, 1, 8, 9]".withEndLine(), outputStr)
     }
 
     @Test
-    fun `when first arg absent - then parse exception`() {
+    fun `when out sequence left more than right - then error`() {
         // Given
-        val input = "out  * 12"
+        val input = "out {9, 2}"
             .withEndLine()
             .byteInputStream()
 
@@ -72,26 +75,7 @@ internal class OperatorMultTest {
         val parser = Parser(input)
         val byteOutStream = ByteArrayOutputStream()
         val outStream = PrintStream(byteOutStream)
+        assertThrows<IllegalArgumentException>{ parser.Start(outStream) }
 
-        assertThrows<ParseException> {
-            parser.Start(outStream)
-        }
-    }
-
-    @Test
-    fun `when second arg absent - then parse exception`() {
-        // Given
-        val input = "out 12 * "
-            .withEndLine()
-            .byteInputStream()
-
-        // When
-        val parser = Parser(input)
-        val byteOutStream = ByteArrayOutputStream()
-        val outStream = PrintStream(byteOutStream)
-
-        assertThrows<ParseException> {
-            parser.Start(outStream)
-        }
     }
 }

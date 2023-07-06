@@ -2,8 +2,10 @@ options {
 	STATIC = false ;
 }
 PARSER_BEGIN(Parser)
-package com.github.oitc.parser;
+package com.github.oitc.parser.generated;
 
+import com.github.oitc.parser.ExtKt;
+import com.github.oitc.parser.ReaderMaker;
 import com.github.oitc.parser.data.ExpressionValue;
 import com.github.oitc.parser.data.ExpressionValue.*;
 import com.github.oitc.parser.data.ParserPosition;
@@ -20,7 +22,7 @@ import java.util.*;
 import java.util.function.Function;
 import static com.github.oitc.parser.ExtKt.getIntValue;
 
-class Parser {
+public class Parser {
     public static void main( String[] args ) throws ParseException, TokenMgrError, IOException {
         Reader reader = ReaderMaker.INSTANCE.invoke(System.in);
         Parser parser = new Parser( reader ) ;
@@ -73,17 +75,17 @@ void Start(PrintStream printStream) :
 {
 	(
             value = Expression(vars)
-            <EOL>
+            Termitate()
         |
             <OUT>
             value = Expression(vars)
-            <EOL>
+            Termitate()
             { printStream.println(value.getValue());}
 	    |
 	        <PRINT>
 	        {String quoted;}
 	        quoted = Quoted()
-	        <EOL>
+	        Termitate()
             { printStream.println(quoted);}
         |
             <VAR>
@@ -95,9 +97,19 @@ void Start(PrintStream printStream) :
             <EQ>
             value = Expression(vars)
             {vars.put(varName, value);}
-            <EOL>
+            Termitate()
 	)*
-	<EOF>
+}
+
+void Termitate() :
+{
+}
+{
+    (
+        <EOL>
+        |
+        <EOF>
+    )
 }
 
 ExValSequence Map(Map<String, ExpressionValue> vars):

@@ -1,4 +1,4 @@
-val parserSourceCodeDir = "../app/src/main/java/com/github/oitc/parser"
+val parserSourceCodeDir = "../app/src/main/java/"+providers.gradleProperty("parser.generated.path").get()
 
 tasks.register("generateJava") {
     dependsOn("copyGrammar")
