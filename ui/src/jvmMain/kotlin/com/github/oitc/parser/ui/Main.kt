@@ -1,12 +1,26 @@
 package com.github.oitc.parser.ui
 
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import com.github.oitc.parser.ui.model.ErrorHighlight
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
@@ -31,7 +45,9 @@ fun App(viewModel: ViewModel) {
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            CodeInput { newInput ->
+            CodeInput(
+                screenState.value.errorHighlight
+            ) { newInput ->
                 viewModel.onCodeInputUpdated(newInput)
             }
             ExecutionOutput(screenState.value.codeExecutionOutput)
@@ -40,8 +56,20 @@ fun App(viewModel: ViewModel) {
 }
 
 @Composable
-fun CodeInput(onEval: (String) -> Unit) {
+fun CodeInput(
+    errorHighlight: ErrorHighlight?,
+    onEval: (String) -> Unit
+) {
     var inputValue by remember { mutableStateOf("") }
+
+    var visualTransformation by remember { mutableStateOf(VisualTransformation.None) }
+    visualTransformation = errorHighlight?.run {
+        ErrorHighlightTransformation(
+            color = MaterialTheme.colors.error,
+            errorPosition = start to end
+        )
+    } ?: VisualTransformation.None
+
     TextField(
         value = inputValue,
         modifier = Modifier.fillMaxWidth()
@@ -49,13 +77,43 @@ fun CodeInput(onEval: (String) -> Unit) {
         onValueChange = {
             inputValue = it
             onEval(inputValue)
-        }
+        },
+        visualTransformation = visualTransformation
     )
 }
 
+
 @Composable
 fun ExecutionOutput(value: String) {
-    Text(
-        text = value
+    Text(text = value)
+}
+
+
+private class ErrorHighlightTransformation(
+    val color: Color,
+    val errorPosition: Pair<Int, Int>? = null
+) : VisualTransformation {
+    override fun filter(text: AnnotatedString) = TransformedText(
+        text = errorPosition?.let { (start, end) ->
+            createAnnotatedString(text, color, start, end)
+        } ?: text,
+        offsetMapping = OffsetMapping.Identity
     )
+
+    private fun createAnnotatedString(
+        string: AnnotatedString,
+        color: Color,
+        start: Int,
+        end: Int
+    ): AnnotatedString = buildAnnotatedString {
+        append(string)
+        addStyle(
+            style = SpanStyle(
+                color = color,
+                textDecoration = TextDecoration.Underline
+            ),
+            start = start,
+            end = end
+        )
+    }
 }
