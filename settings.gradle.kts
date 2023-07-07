@@ -7,10 +7,14 @@ pluginManagement {
     }
 
     plugins {
-        kotlin("jvm") version "1.8.0"
-        kotlin("multiplatform") version "1.8.0"
+        val kotlinVersion = extra["kotlin.version"] as String
+        val composeVersion = extra["compose.version"] as String
+
+        kotlin("jvm") version kotlinVersion
+        kotlin("multiplatform") version kotlinVersion
+        id("org.jetbrains.compose") version composeVersion
     }
 }
 
 rootProject.name = "parser"
-include("grammar", "app", "data", "ui")
+include("grammar", "cli", "data", "ui")

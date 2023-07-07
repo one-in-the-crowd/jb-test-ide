@@ -13,5 +13,5 @@ allprojects {
 
 tasks.register<Delete>("clean") {
     val path = providers.gradleProperty("parser.generated.path").get()
-    delete("app/src/main/java/"+path)
+    delete("cli/src/main/java/"+path)
 }

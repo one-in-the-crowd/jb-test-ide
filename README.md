@@ -17,7 +17,7 @@ program ::= stmt | program stmt
 
 ## Parser execution example
 1. Build the project with `.gradlew build`;
-2. Navigate to `app/build/libs`;
+2. Navigate to `cli/build/libs`;
 3. Create a file with parser input;
 4. Use following command for parsing `java -jar parser.jar < input.txt`.
 
@@ -25,10 +25,10 @@ program ::= stmt | program stmt
 Execute `ui/package` gradle task to create application distributive for all supported OS.
 
 ## Examples
-Parser usage examples located at `app/examples`.
+Parser usage examples located at `cli/examples`.
 
 1. Build the project with `.gradlew build`;
-2. Navigate to `app/build/libs`;
+2. Navigate to `cli/build/libs`;
 3. Create a file with parser input;
 4. Execute parsing (e.g. `java -jar parser.jar < input.txt`).
 

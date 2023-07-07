@@ -2,11 +2,8 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     kotlin("multiplatform")
-    id("org.jetbrains.compose") version "1.3.0"
+    id("org.jetbrains.compose")
 }
-
-group = "com.github.oitc.parser"
-version = "1.0-SNAPSHOT"
 
 kotlin {
     jvm {
@@ -17,7 +14,7 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.currentOs)
 
-                implementation(project(":app"))
+                implementation(project(":cli"))
             }
 
         }
