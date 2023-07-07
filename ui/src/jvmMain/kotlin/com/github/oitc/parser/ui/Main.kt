@@ -14,7 +14,10 @@ import kotlinx.coroutines.Dispatchers
 fun main() = application {
 
     val viewModel = ViewModel(CoroutineScope(Dispatchers.Default))
-    Window(onCloseRequest = ::exitApplication) {
+    Window(
+        title = "Test IDE",
+        onCloseRequest = ::exitApplication
+    ) {
         App(viewModel)
     }
 }
