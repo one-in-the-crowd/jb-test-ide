@@ -22,7 +22,7 @@ program ::= stmt | program stmt
 4. Use following command for parsing `java -jar parser.jar < input.txt`.
 
 ## Distribution
-Execute `ui/package` gradle task to create application distributive for all supported OS.
+Execute `gradlew :ui:package` gradle task to create application distributive for all supported OS.
 
 ## Examples
 Parser usage examples located at `cli/examples`.
