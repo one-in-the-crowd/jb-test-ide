@@ -1,6 +1,6 @@
 # Parser generation project
 Repository contains desktop application for code interpretation and execution.
-Code parser generated for given language grammar (module `grammar`). User interacts with parser via graphic interface (module `ui`) or CLI (module `app`).
+Code parser generated for given language grammar (module `grammar`). User interacts with parser via graphic interface (module `ui`) or CLI (module `cli`).
 
 ## Language grammar
 ```
@@ -12,7 +12,7 @@ program ::= stmt | program stmt
 
 ## Modules
 - `grammar` - contains original grammar for parser generation;
-- `app` - module generates parser based on grammar from `grammar`;
+- `cli` - module generates parser based on grammar from `grammar`;
 - `ui` - contains user interface that allows to input code. Code input forwarded to parser for parsing and execution.
 
 ## Parser execution example
