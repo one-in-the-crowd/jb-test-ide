@@ -63,12 +63,16 @@ fun CodeInput(
     var inputValue by remember { mutableStateOf("") }
 
     var visualTransformation by remember { mutableStateOf(VisualTransformation.None) }
-    visualTransformation = errorHighlight?.run {
-        ErrorHighlightTransformation(
-            color = MaterialTheme.colors.error,
-            errorPosition = start to end
-        )
-    } ?: VisualTransformation.None
+
+    // TODO fix error demonstration
+    // error handling omitted since it is unstable.
+    visualTransformation = VisualTransformation.None
+//        errorHighlight?.run {
+//        ErrorHighlightTransformation(
+//            color = MaterialTheme.colors.error,
+//            errorPosition = start to end
+//        )
+//    } ?: VisualTransformation.None
 
     TextField(
         value = inputValue,
